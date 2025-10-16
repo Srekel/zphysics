@@ -58,14 +58,22 @@ pub inline fn isValidBodyPointer(body: *const Body) bool {
 /// Use `PhysicsSystem.getBodies()` to get all the bodies.
 /// NOTE: This function is *not* protected by a lock, use with care!
 pub inline fn tryGetBody(all_bodies: []const *const Body, body_id: BodyId) ?*const Body {
-    const body = all_bodies[body_id & body_id_index_bits];
+    const index = body_id.indexBits();
+    if (index >= all_bodies.len) {
+        return null;
+    }
+    const body = all_bodies[index];
     return if (isValidBodyPointer(body) and body.id == body_id) body else null;
 }
 /// Access a body, will return a `null` if the `body_id` is no longer valid.
 /// Use `PhysicsSystem.getBodiesMut()` to get all the bodies.
 /// NOTE: This function is *not* protected by a lock, use with care!
 pub inline fn tryGetBodyMut(all_bodies: []const *Body, body_id: BodyId) ?*Body {
-    const body = all_bodies[body_id & body_id_index_bits];
+    const index = body_id.indexBits();
+    if (index >= all_bodies.len) {
+        return null;
+    }
+    const body = all_bodies[index];
     return if (isValidBodyPointer(body) and body.id == body_id) body else null;
 }
 
