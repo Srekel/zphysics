@@ -35,6 +35,11 @@ pub fn build(b: *std.Build) void {
             "no_exceptions",
             "Disable C++ Exceptions",
         ) orelse true,
+        .code_generation_multithreaded_dll = b.option(
+            bool,
+            "runtime_lib_multithreaded_dll",
+            "Mirrors MSVC's MD and MDd modes",
+        ) orelse true,
     };
 
     const options_step = b.addOptions();
@@ -68,6 +73,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     b.installArtifact(joltc);
+    if (options.code_generation_multithreaded_dll) {
+        joltc.root_module.addCMacro("_MT", "1");
+        joltc.root_module.addCMacro("_DLL", "1");
+    }
 
     joltc.addIncludePath(b.path("libs"));
     joltc.addIncludePath(b.path("libs/JoltC"));
